@@ -14,4 +14,19 @@ router.get(
   })
 );
 
+router.post('/', asyncHandler(async (req, res) => {
+  const { message } = req.body;
+  await Tweet.create({
+    message
+  });
+
+  const findTweet = await Tweet.findOne({
+    where: {
+      message
+    }
+  });
+
+  res.json(findTweet);
+}))
+
 module.exports = router;

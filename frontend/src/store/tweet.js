@@ -1,5 +1,6 @@
 // constant to avoid debugging typos
 const GET_ALL_TWEETS = 'tweet/getAllTweets';
+const POST_TWEET = 'tweet/POST';
 
 //regular action creator
 const loadTweets = (tweets) => {
@@ -8,6 +9,14 @@ const loadTweets = (tweets) => {
     tweets
   };
 };
+const addTweet = (tweet) => {
+  return {
+    type: POST_TWEET,
+    payload: {
+      tweet
+    }
+  }
+}
 
 // thunk action creator
 export const getAllTweets = () => async (dispatch) => {
@@ -21,6 +30,22 @@ export const getAllTweets = () => async (dispatch) => {
   }
 };
 
+export const postTweet = (tweet) => async (dispatch) => {
+  const response = await fetch('/api/tweets', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ message: tweet })
+  });
+
+  if (response.ok) {
+    const data = await response.json();
+    dispatch(addTweet(data));
+    return data;
+  }
+}
+
 // state object
 const initialState = {};
 
@@ -30,6 +55,11 @@ const tweetsReducer = (state = initialState, action) => {
     case GET_ALL_TWEETS: {
       const newState = {};
       action.tweets.forEach((tweet) => (newState[tweet.id] = tweet));
+      return newState;
+    }
+    case POST_TWEET: {
+      const tweet = action.payload.tweet;
+      const newState = { ...state, tweet };
       return newState;
     }
     default:
